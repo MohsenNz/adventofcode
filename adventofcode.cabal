@@ -1,0 +1,19 @@
+cabal-version:      3.0
+name:               adventofcode
+version:            0.1.0.0
+license:            MIT
+license-file:       LICENSE
+author:             Mohsen
+maintainer:         thelight.mn@gmail.com
+build-type:         Simple
+
+common warnings
+    ghc-options: -Wall
+
+executable adventofcode
+    import:           warnings
+    main-is:          Main.hs
+    other-modules:    Challenge1
+    build-depends:    base ^>=4.18.2.0
+    hs-source-dirs:   app
+    default-language: Haskell2010
