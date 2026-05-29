@@ -11,8 +11,8 @@ parseInput = replicateM 1000 (parseLine <$> getLine)
 
 parseLine :: String -> (Int, Int)
 parseLine line =
-    let l = map read (words line)
-     in (l !! 0, l !! 1)
+    let (x1 : x2 : _) = map read (words line)
+     in (x1, x2)
 
 sort' :: [(Int, Int)] -> [(Int, Int)]
 sort' l =

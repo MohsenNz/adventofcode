@@ -1,6 +1,6 @@
 module Day2 (runPart1, runPart2) where
 
-import Control.Monad (replicateM)
+import           Control.Monad (replicateM)
 
 {- FOURMOLU_DISABLE -}
 
