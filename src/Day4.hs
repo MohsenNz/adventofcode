@@ -1,5 +1,7 @@
 module Day4
-    ( run
+    ( run_
+    , runPart1
+    , runPart2
       -- | test exports
     , evalLine
     , unzipDiagonalR0
@@ -10,32 +12,40 @@ import Control.Monad (replicateM)
 import Data.List.NonEmpty (NonEmpty, toList)
 
 -------------------------------------------------------------------------------
+-- Run
 
-run :: IO ()
-run = run140
+run_ :: IO ()
+run_ = runPart2
 
-run140 :: IO ()
+runPart1 :: IO ()
+runPart1 = run140 evalP1
+
+runPart2 :: IO ()
+runPart2 = run140 evalP2
+
+run140 :: (Dataset -> Int) -> IO ()
 run140 = runForLines 140
 
-run10 :: IO ()
+run10 :: (Dataset -> Int) -> IO ()
 run10 = runForLines 10
 
-runForLines :: Int -> IO ()
-runForLines n = do
+runForLines :: Int -> (Dataset -> Int) -> IO ()
+runForLines n eval = do
     lines <- replicateM n getLine
-    printEval lines
+    printEval eval lines
 
-printEval :: [Line] -> IO ()
-printEval = print . eval . Dataset
+printEval :: (Dataset -> Int) -> [Line] -> IO ()
+printEval eval = print . eval . Dataset
 
 -------------------------------------------------------------------------------
+-- Part 1
 
 type Line = [Char]
 newtype Dataset = Dataset {unDataset :: [Line]}
 newtype Diagonals = Diagonals {unDiagonals :: [Line]}
 
-eval :: Dataset -> Int
-eval ds@(Dataset ds') =
+evalP1 :: Dataset -> Int
+evalP1 ds@(Dataset ds') =
     evalH ds' + evalV ds' + evalDiagonalR ds + evalDiagonalL ds
 
 evalH :: [Line] -> Int
@@ -98,8 +108,6 @@ unzipDiagonalR (Dataset ds) = Diagonals $ go [] ds 1
 --    * 3    * 3
 --  * 5 6 =  * 5 6
 --  7 8 9    7 8 9
---
--- TODO: needed to test
 unzipDiagonalR0
     :: DsWidth -> DsHeight -> [Line] -> Pointer -> (Line, [Line])
 unzipDiagonalR0 width height ds pt
@@ -128,3 +136,52 @@ evalLine = go 0
     go acc ('S' : 'A' : 'M' : 'X' : xs) = go (acc + 1) ('X' : xs)
     go acc (_ : xs)                     = go acc xs
     go acc []                           = acc
+
+-------------------------------------------------------------------------------
+-- Part 2
+
+evalP2 :: Dataset -> Int
+evalP2 (Dataset ds) = go 0 ds
+  where
+    go :: Int -> [Line] -> Int
+    go acc [_, _] = acc
+    go acc ls@(_ : ls') = go (acc + countXMasAtFirst3Lines ls) ls'
+
+    countXMasAtFirst3Lines = f 0
+
+    f :: Int -> [Line] -> Int
+    f acc ([_, _]: _) = acc
+
+    f acc ( (a1 : b1 : c1 : l1)
+          : ( _ : b2 : c2 : l2)
+          : (a3 : b3 : c3 : l3)
+          : ls
+          )                     | isXMas a1  c1
+                                           b2
+                                         a3  c3  = f (acc + 1) ls'
+                                | otherwise      = f acc ls'
+          where
+            ls' = (b1 : c1 : l1)
+                : (b2 : c2 : l2)
+                : (b3 : c3 : l3)
+                : ls
+
+    isXMas 'M' 'S'
+             'A'
+           'M' 'S' = True
+
+    isXMas 'M' 'M'
+             'A'
+           'S' 'S' = True
+
+    isXMas 'S' 'S'
+             'A'
+           'M' 'M' = True
+
+    isXMas 'S' 'M'
+             'A'
+           'S' 'M' = True
+
+    isXMas  _   _
+              _
+            _   _  = False

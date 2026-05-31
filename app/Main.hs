@@ -5,4 +5,4 @@ import Day2
 import Day4
 
 main :: IO ()
-main = Day4.run
+main = Day4.runPart2
